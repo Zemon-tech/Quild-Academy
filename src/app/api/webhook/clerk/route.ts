@@ -56,18 +56,55 @@ export async function POST(request: NextRequest) {
 
       await connectDB();
 
-      // Create user in database
-      const newUser = new User({
-        clerkId: id,
-        email: email_addresses[0].email_address,
-        firstName: first_name,
-        lastName: last_name,
-        photo: image_url,
-      });
+      // Check if user already exists (in case of duplicate webhook calls)
+      const existingUser = await User.findOne({ clerkId: id });
+      if (existingUser) {
+        console.log('User already exists, updating info:', id);
+        existingUser.email = email_addresses[0].email_address;
+        existingUser.firstName = first_name;
+        existingUser.lastName = last_name;
+        existingUser.photo = image_url;
+        await existingUser.save();
+        console.log('User updated:', existingUser);
+      } else {
+        // Create user in database
+        const newUser = new User({
+          clerkId: id,
+          email: email_addresses[0].email_address,
+          firstName: first_name,
+          lastName: last_name,
+          photo: image_url,
+        });
 
-      await newUser.save();
+        await newUser.save();
+        console.log('User created:', newUser);
+      }
+    } else if (eventType === 'user.updated') {
+      const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
-      console.log('User created:', newUser);
+      await connectDB();
+
+      // Update existing user
+      const user = await User.findOne({ clerkId: id });
+      if (user) {
+        user.email = email_addresses[0].email_address;
+        user.firstName = first_name;
+        user.lastName = last_name;
+        user.photo = image_url;
+        await user.save();
+        console.log('User updated:', user);
+      } else {
+        // User doesn't exist, create them
+        const newUser = new User({
+          clerkId: id,
+          email: email_addresses[0].email_address,
+          firstName: first_name,
+          lastName: last_name,
+          photo: image_url,
+        });
+        await newUser.save();
+        console.log('User created from update event:', newUser);
+      }
     }
 
     return NextResponse.json({ message: 'Webhook processed successfully' });

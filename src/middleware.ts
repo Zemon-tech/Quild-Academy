@@ -8,7 +8,11 @@ const isProtectedRoute = createRouteMatcher([
   '/settings(.*)',
   '/api/progress(.*)',
   '/api/courses(.*)',
-  '/api/seed(.*)'
+  '/api/leaderboard(.*)',
+  '/api/phases(.*)',
+  '/api/weeks(.*)',
+  '/api/lessons(.*)'
+  // Note: /api/seed is intentionally not protected so it can be called without authentication
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

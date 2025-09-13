@@ -3,13 +3,21 @@
 import { UserButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, GraduationCap } from 'lucide-react';
 
 export function Header() {
   return (
     <header className="flex h-16 items-center justify-between border-b bg-white dark:bg-gray-900 px-4 md:px-6 w-full">
       <div className="flex items-center space-x-4 flex-1">
-        <SidebarTrigger className="md:hidden" />
+        {/* Mobile: Show logo only, Desktop: Show sidebar trigger and search */}
+        <div className="flex items-center space-x-3 md:hidden">
+          <GraduationCap className="h-6 w-6 text-blue-400" />
+          <span className="text-lg font-bold text-gray-900 dark:text-white">Quild Academy</span>
+        </div>
+        
+        <SidebarTrigger className="hidden md:flex" />
+        
+        {/* Search bar - Desktop only */}
         <div className="relative hidden md:block flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
