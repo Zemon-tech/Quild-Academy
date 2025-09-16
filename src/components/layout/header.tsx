@@ -3,7 +3,9 @@
 import { UserButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Bell, Search, GraduationCap } from 'lucide-react';
+import { Bell, Search } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export function Header() {
   return (
@@ -11,7 +13,9 @@ export function Header() {
       <div className="flex items-center space-x-4 flex-1">
         {/* Mobile: Show logo only, Desktop: Show sidebar trigger and search */}
         <div className="flex items-center space-x-3 md:hidden">
-          <GraduationCap className="h-6 w-6 text-blue-400" />
+          <Link href="/">
+            <Image src="/Subject.svg" alt="Quild Academy" width={24} height={24} priority />
+          </Link>
           <span className="text-lg font-bold text-gray-900 dark:text-white">Quild Academy</span>
         </div>
         

@@ -180,6 +180,7 @@ const getStatusIcon = (status: string) => {
 };
 
 export const revalidate = 60; // cache server-rendered data for 60s
+export const dynamic = 'force-dynamic';
 
 export default async function SchedulePage() {
   const { phases, weeks, lessons, userProgress } = await getScheduleData();

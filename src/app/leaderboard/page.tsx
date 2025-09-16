@@ -88,6 +88,7 @@ async function getLeaderboardData() {
 }
 
 export const revalidate = 60; // cache server-rendered data for 60s
+export const dynamic = 'force-dynamic';
 
 export default async function LeaderboardPage() {
   const leaderboardData = await getLeaderboardData();
