@@ -23,6 +23,7 @@ import UserProgress from '@/lib/models/progress.model';
 import Phase from '@/lib/models/phase.model';
 import Week from '@/lib/models/week.model';
 import Lesson from '@/lib/models/lesson.model';
+import { ensureDbUserFromClerk } from '@/lib/ensure-user';
 
 async function getProfileData() {
   try {
@@ -50,20 +51,7 @@ async function getProfileData() {
     await connectDB();
 
     // Find user by clerkId, create if doesn't exist
-    let user = await UserModel.findOne({ clerkId: userId });
-    if (!user) {
-      console.log('User not found, creating new user for clerkId:', userId);
-      
-      user = new UserModel({
-        clerkId: userId,
-        email: 'temp@example.com',
-        firstName: 'User',
-        lastName: 'Name',
-        photo: '',
-      });
-      await user.save();
-      console.log('Created new user:', user);
-    }
+    const user = await ensureDbUserFromClerk(userId);
 
     // Get user progress
     let userProgress = await UserProgress.findOne({ userId: user._id })

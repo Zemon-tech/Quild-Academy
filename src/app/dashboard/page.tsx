@@ -21,6 +21,7 @@ import UserProgress from '@/lib/models/progress.model';
 import Phase from '@/lib/models/phase.model';
 import Week from '@/lib/models/week.model';
 import Lesson from '@/lib/models/lesson.model';
+import { ensureDbUserFromClerk } from '@/lib/ensure-user';
 
 async function getDashboardData() {
   try {
@@ -36,21 +37,7 @@ async function getDashboardData() {
     await connectDB();
     
     // Find user by clerkId, create if doesn't exist
-    let user = await User.findOne({ clerkId: userId });
-    if (!user) {
-      // User doesn't exist, create them
-      console.log('User not found, creating new user for clerkId:', userId);
-      
-      user = new User({
-        clerkId: userId,
-        email: 'temp@example.com', // This will be updated by webhook
-        firstName: 'User',
-        lastName: 'Name',
-        photo: '',
-      });
-      await user.save();
-      console.log('Created new user:', user);
-    }
+    const user = await ensureDbUserFromClerk(userId);
 
     // Get user progress
     let userProgress = await UserProgress.findOne({ userId: user._id })

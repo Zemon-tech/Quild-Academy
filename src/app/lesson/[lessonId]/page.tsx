@@ -28,6 +28,7 @@ import Phase from '@/lib/models/phase.model';
 import Link from 'next/link';
 import { LessonActions } from '@/components/lesson/lesson-actions';
 import { Types } from 'mongoose';
+import { ensureDbUserFromClerk } from '@/lib/ensure-user';
 
 interface CompletedLesson {
   lessonId: Types.ObjectId;
@@ -71,20 +72,7 @@ async function getLessonData(lessonId: string) {
     await connectDB();
 
     // Find user by clerkId, create if doesn't exist
-    let user = await User.findOne({ clerkId: userId });
-    if (!user) {
-      console.log('User not found, creating new user for clerkId:', userId);
-      
-      user = new User({
-        clerkId: userId,
-        email: 'temp@example.com',
-        firstName: 'User',
-        lastName: 'Name',
-        photo: '',
-      });
-      await user.save();
-      console.log('Created new user:', user);
-    }
+    const user = await ensureDbUserFromClerk(userId);
 
     // Get lesson with populated data
     const lesson = await Lesson.findById(lessonId)

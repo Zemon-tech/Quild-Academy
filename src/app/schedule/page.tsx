@@ -22,6 +22,7 @@ import UserProgress from '@/lib/models/progress.model';
 import Phase from '@/lib/models/phase.model';
 import Week from '@/lib/models/week.model';
 import Lesson from '@/lib/models/lesson.model';
+import { ensureDbUserFromClerk } from '@/lib/ensure-user';
 import { Types } from 'mongoose';
 import Link from 'next/link';
 
@@ -103,15 +104,7 @@ async function getScheduleData(): Promise<{
 
     await connectDB();
 
-    const user = await User.findOne({ clerkId: userId });
-    if (!user) {
-      return {
-        phases: [],
-        weeks: [],
-        lessons: [],
-        userProgress: null
-      };
-    }
+    const user = await ensureDbUserFromClerk(userId);
 
     const [phases, weeks, lessons] = await Promise.all([
       Phase.find({ isActive: true }).sort({ order: 1 }).lean<PhaseLean[]>(),
