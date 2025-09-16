@@ -27,6 +27,10 @@ const LessonSchema = new Schema({
   order: { type: Number, required: true }, // order within the week
 }, { timestamps: true });
 
+// Indexes to speed up lesson queries
+LessonSchema.index({ weekId: 1, isActive: 1, order: 1 });
+LessonSchema.index({ isActive: 1, order: 1 });
+
 const Lesson = models.Lesson || model('Lesson', LessonSchema);
 export default Lesson;
 

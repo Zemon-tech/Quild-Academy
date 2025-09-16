@@ -10,5 +10,9 @@ const PhaseSchema = new Schema({
   color: { type: String, default: '#3B82F6' }, // for UI theming
 }, { timestamps: true });
 
+// Indexes to speed up common queries and sorts
+PhaseSchema.index({ isActive: 1, order: 1 });
+PhaseSchema.index({ order: 1 });
+
 const Phase = models.Phase || model('Phase', PhaseSchema);
 export default Phase;

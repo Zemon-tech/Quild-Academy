@@ -71,14 +71,17 @@ async function getScheduleData() {
       };
     }
 
-    const phases = await Phase.find({ isActive: true }).sort({ order: 1 });
-    const weeks = await Week.find({ isActive: true }).sort({ weekNumber: 1 });
-    const lessons = await Lesson.find({ isActive: true }).sort({ order: 1 });
+    const [phases, weeks, lessons] = await Promise.all([
+      Phase.find({ isActive: true }).sort({ order: 1 }).lean(),
+      Week.find({ isActive: true }).sort({ weekNumber: 1 }).lean(),
+      Lesson.find({ isActive: true }).sort({ order: 1 }).lean(),
+    ]);
 
     let userProgress = await UserProgress.findOne({ userId: user._id })
-      .populate('currentPhase')
-      .populate('currentWeek')
-      .populate('currentLesson');
+      .populate('currentPhase', 'name order')
+      .populate('currentWeek', 'weekNumber phaseId')
+      .populate('currentLesson', 'dayNumber title weekId')
+      .lean();
 
     if (!userProgress) {
       const firstPhase = await Phase.findOne({ isActive: true }).sort({ order: 1 });
@@ -95,9 +98,10 @@ async function getScheduleData() {
       await userProgress.save();
 
       userProgress = await UserProgress.findOne({ userId: user._id })
-        .populate('currentPhase')
-        .populate('currentWeek')
-        .populate('currentLesson');
+        .populate('currentPhase', 'name order')
+        .populate('currentWeek', 'weekNumber phaseId')
+        .populate('currentLesson', 'dayNumber title weekId')
+        .lean();
     }
 
     return {
@@ -133,6 +137,8 @@ const getStatusIcon = (status: string) => {
     default: return <Circle className="h-4 w-4 text-gray-400" />;
   }
 };
+
+export const revalidate = 60; // cache server-rendered data for 60s
 
 export default async function SchedulePage() {
   const { phases, weeks, lessons, userProgress } = await getScheduleData();

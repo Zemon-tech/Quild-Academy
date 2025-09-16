@@ -71,7 +71,7 @@ async function getLeaderboardData() {
       {
         $sort: { totalPoints: -1, currentStreak: -1 }
       }
-    ]);
+    ]).allowDiskUse(true);
 
     const currentUserClerkId = userId;
     const rankedLeaderboard = leaderboard.map((entry, index) => ({
@@ -86,6 +86,8 @@ async function getLeaderboardData() {
     return [];
   }
 }
+
+export const revalidate = 60; // cache server-rendered data for 60s
 
 export default async function LeaderboardPage() {
   const leaderboardData = await getLeaderboardData();

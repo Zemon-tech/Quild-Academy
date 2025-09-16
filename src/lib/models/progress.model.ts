@@ -42,5 +42,12 @@ const UserProgressSchema = new Schema({
   completedResources: [{ type: Schema.Types.ObjectId }],
 }, { timestamps: true });
 
+// Indexes for frequent lookups and aggregations
+UserProgressSchema.index({ userId: 1 });
+UserProgressSchema.index({ totalPoints: -1, currentStreak: -1 });
+UserProgressSchema.index({ currentPhase: 1 });
+UserProgressSchema.index({ currentWeek: 1 });
+UserProgressSchema.index({ currentLesson: 1 });
+
 const UserProgress = models.UserProgress || model('UserProgress', UserProgressSchema);
 export default UserProgress;

@@ -10,6 +10,10 @@ const WeekSchema = new Schema({
   objectives: [String], // learning objectives for the week
 }, { timestamps: true });
 
+// Indexes to accelerate lookups and sorts
+WeekSchema.index({ phaseId: 1, isActive: 1, weekNumber: 1 });
+WeekSchema.index({ isActive: 1, weekNumber: 1 });
+
 const Week = models.Week || model('Week', WeekSchema);
 export default Week;
 
