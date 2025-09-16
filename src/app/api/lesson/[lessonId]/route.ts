@@ -101,11 +101,15 @@ export async function POST(
       );
 
       if (!isAlreadyCompleted) {
+        const lessonDuration = Number(lesson?.content?.duration ?? 0);
+        const safeTimeSpent = Number.isFinite(Number(timeSpent)) && Number(timeSpent) > 0
+          ? Number(timeSpent)
+          : (Number.isFinite(lessonDuration) ? lessonDuration : 0);
         // Add lesson to completed lessons
         userProgress.completedLessons.push({
           lessonId: lesson._id,
           completedAt: new Date(),
-          timeSpent: timeSpent || lesson.duration,
+          timeSpent: safeTimeSpent,
           pointsEarned: lesson.points
         });
 
@@ -113,7 +117,7 @@ export async function POST(
         userProgress.totalPoints += lesson.points;
 
         // Update total time spent
-        userProgress.totalTimeSpent += (timeSpent || lesson.duration);
+        userProgress.totalTimeSpent += safeTimeSpent;
 
         // Update streak
         const today = new Date();
@@ -159,8 +163,8 @@ export async function POST(
               userProgress.completedWeeks.push({
                 weekId: week._id,
                 completedAt: new Date(),
-                timeSpent: weekLessons.reduce((total, lesson) => total + lesson.duration, 0),
-                pointsEarned: weekLessons.reduce((total, lesson) => total + lesson.points, 0)
+                timeSpent: weekLessons.reduce((total, l) => total + Number(l?.content?.duration ?? 0), 0),
+                pointsEarned: weekLessons.reduce((total, l) => total + Number(l.points ?? 0), 0)
               });
 
               // Check if this completes the current phase
@@ -181,8 +185,8 @@ export async function POST(
                     userProgress.completedPhases.push({
                       phaseId: phase._id,
                       completedAt: new Date(),
-                      timeSpent: phaseWeeks.reduce((total, week) => total + week.duration, 0),
-                      pointsEarned: phaseWeeks.reduce((total, week) => total + week.points, 0)
+                      timeSpent: 0,
+                      pointsEarned: 0
                     });
                   }
                 }
@@ -203,7 +207,7 @@ export async function POST(
         } else {
           // Move to next week
           const nextWeek = await Week.findOne({
-            phaseId: lesson.weekId.phaseId,
+            phaseId: week.phaseId,
             weekNumber: { $gt: week.weekNumber },
             isActive: true
           }).sort({ weekNumber: 1 });

@@ -302,6 +302,71 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
           </CardContent>
         </Card>
 
+        {/* Lesson Main Content */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <BookOpen className="h-5 w-5" />
+              <span>Lesson Content</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Video */}
+              {lesson.type === 'video' && (lesson.content?.videoUrl || lesson.videoUrl) && (
+                <div className="w-full">
+                  {(() => {
+                    const url = (lesson.content?.videoUrl || lesson.videoUrl) as string;
+                    const isYouTube = /youtu\.be|youtube\.com/.test(url);
+                    if (isYouTube) {
+                      // Basic YouTube embed
+                      const videoIdMatch = url.match(/(?:v=|be\/)\w+[\-\w]+/);
+                      const videoId = videoIdMatch ? videoIdMatch[0].replace(/^v=|^.*\//, '') : '';
+                      const embedSrc = `https://www.youtube.com/embed/${videoId}`;
+                      return (
+                        <div className="aspect-video w-full">
+                          <iframe
+                            className="w-full h-full rounded-md"
+                            src={embedSrc}
+                            title="Lesson Video"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                          />
+                        </div>
+                      );
+                    }
+                    return (
+                      <Button variant="outline" asChild>
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Open Video
+                        </a>
+                      </Button>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Reading */}
+              {lesson.type === 'reading' && lesson.content?.readingUrl && (
+                <Button variant="outline" asChild>
+                  <a href={lesson.content?.readingUrl as string} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Reading
+                  </a>
+                </Button>
+              )}
+
+              {/* Instructions */}
+              {lesson.content?.instructions && (
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="whitespace-pre-wrap">{lesson.content.instructions}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Resources */}
         <Card>
           <CardHeader>
@@ -332,10 +397,12 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => window.open(resource.url, '_blank')}
+                        asChild
                       >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Open
+                        <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Open
+                        </a>
                       </Button>
                     </div>
                   </div>

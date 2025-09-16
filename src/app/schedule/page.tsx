@@ -334,14 +334,12 @@ export default async function SchedulePage() {
                                                 </span>
                                               </div>
                                             </div>
-                                            {isCurrentLesson && (
-                                              <Button size="sm" className="ml-2" asChild>
-                                                <Link href={`/lesson/${lesson._id}`}>
-                                                  <Play className="h-3 w-3 mr-1" />
-                                                  Start
-                                                </Link>
-                                              </Button>
-                                            )}
+                                            <Button size="sm" className="ml-2" asChild>
+                                              <Link href={`/lesson/${lesson._id}`}>
+                                                <Play className="h-3 w-3 mr-1" />
+                                                {isCurrentLesson ? 'Start' : 'Open'}
+                                              </Link>
+                                            </Button>
                                           </div>
                                         </div>
                                       );
