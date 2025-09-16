@@ -12,3 +12,4 @@ const WeekSchema = new Schema({
 
 const Week = models.Week || model('Week', WeekSchema);
 export default Week;
+
