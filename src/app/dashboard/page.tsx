@@ -2,6 +2,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { 
   Trophy, 
   Clock, 
@@ -265,10 +266,10 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <Button size="sm" asChild>
-                  <a href={`/lesson/${userProgress.currentLesson?._id}`}>
+                  <Link href={`/lesson/${userProgress.currentLesson?._id}`}>
                     Start Learning
                     <ChevronRight className="ml-1 h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -378,7 +379,7 @@ export default async function DashboardPage() {
                   </div>
                 ))}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <a href="/leaderboard">View Full Leaderboard</a>
+                  <Link href="/leaderboard">View Full Leaderboard</Link>
                 </Button>
               </div>
             </CardContent>

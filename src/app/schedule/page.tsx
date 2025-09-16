@@ -23,6 +23,7 @@ import Phase from '@/lib/models/phase.model';
 import Week from '@/lib/models/week.model';
 import Lesson from '@/lib/models/lesson.model';
 import { Types } from 'mongoose';
+import Link from 'next/link';
 
 type Id = Types.ObjectId | string;
 
@@ -335,10 +336,10 @@ export default async function SchedulePage() {
                                             </div>
                                             {isCurrentLesson && (
                                               <Button size="sm" className="ml-2" asChild>
-                                                <a href={`/lesson/${lesson._id}`}>
+                                                <Link href={`/lesson/${lesson._id}`}>
                                                   <Play className="h-3 w-3 mr-1" />
                                                   Start
-                                                </a>
+                                                </Link>
                                               </Button>
                                             )}
                                           </div>
