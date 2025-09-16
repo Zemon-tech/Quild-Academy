@@ -11,7 +11,6 @@ import {
   CheckCircle, 
   Circle,
   Video,
-  FileText,
   Users,
   Code,
   Loader2
@@ -24,6 +23,8 @@ import Phase from '@/lib/models/phase.model';
 import Week from '@/lib/models/week.model';
 import Lesson from '@/lib/models/lesson.model';
 import { Types } from 'mongoose';
+
+type Id = Types.ObjectId | string;
 
 interface CompletedPhase {
   phaseId: Types.ObjectId;
@@ -46,7 +47,47 @@ interface CompletedLesson {
   pointsEarned: number;
 }
 
-async function getScheduleData() {
+interface PhaseLean {
+  _id: Id;
+  name: string;
+  order: number;
+  isActive: boolean;
+}
+
+interface WeekLean {
+  _id: Id;
+  phaseId: Id;
+  weekNumber: number;
+  isActive: boolean;
+}
+
+interface LessonLean {
+  _id: Id;
+  weekId: Id;
+  dayNumber: number;
+  title: string;
+  type: string;
+  content?: { duration?: number };
+  order: number;
+  isActive: boolean;
+}
+
+interface UserProgressLean {
+  currentPhase?: { _id: Id; name: string; order: number } | null;
+  currentWeek?: { _id: Id; weekNumber: number; phaseId: Id } | null;
+  currentLesson?: { _id: Id; dayNumber: number; title: string; weekId: Id } | null;
+  completedPhases?: CompletedPhase[];
+  completedWeeks?: CompletedWeek[];
+  completedLessons?: CompletedLesson[];
+  totalTimeSpent?: number;
+}
+
+async function getScheduleData(): Promise<{
+  phases: PhaseLean[];
+  weeks: WeekLean[];
+  lessons: LessonLean[];
+  userProgress: UserProgressLean | null;
+}> {
   try {
     const { userId } = await auth();
 
@@ -72,36 +113,35 @@ async function getScheduleData() {
     }
 
     const [phases, weeks, lessons] = await Promise.all([
-      Phase.find({ isActive: true }).sort({ order: 1 }).lean(),
-      Week.find({ isActive: true }).sort({ weekNumber: 1 }).lean(),
-      Lesson.find({ isActive: true }).sort({ order: 1 }).lean(),
+      Phase.find({ isActive: true }).sort({ order: 1 }).lean<PhaseLean[]>(),
+      Week.find({ isActive: true }).sort({ weekNumber: 1 }).lean<WeekLean[]>(),
+      Lesson.find({ isActive: true }).sort({ order: 1 }).lean<LessonLean[]>(),
     ]);
 
     let userProgress = await UserProgress.findOne({ userId: user._id })
       .populate('currentPhase', 'name order')
       .populate('currentWeek', 'weekNumber phaseId')
       .populate('currentLesson', 'dayNumber title weekId')
-      .lean();
+      .lean<UserProgressLean | null>();
 
     if (!userProgress) {
       const firstPhase = await Phase.findOne({ isActive: true }).sort({ order: 1 });
       const firstWeek = await Week.findOne({ phaseId: firstPhase?._id, isActive: true }).sort({ weekNumber: 1 });
       const firstLesson = await Lesson.findOne({ weekId: firstWeek?._id, isActive: true }).sort({ order: 1 });
 
-      userProgress = new UserProgress({
+      await new UserProgress({
         userId: user._id,
         currentPhase: firstPhase?._id,
         currentWeek: firstWeek?._id,
         currentLesson: firstLesson?._id,
         completedResources: [],
-      });
-      await userProgress.save();
+      }).save();
 
       userProgress = await UserProgress.findOne({ userId: user._id })
         .populate('currentPhase', 'name order')
         .populate('currentWeek', 'weekNumber phaseId')
         .populate('currentLesson', 'dayNumber title weekId')
-        .lean();
+        .lean<UserProgressLean | null>();
     }
 
     return {
