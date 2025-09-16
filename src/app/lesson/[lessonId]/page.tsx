@@ -199,6 +199,12 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
 
   const week = lesson.weekId as WeekData;
   const phase = week.phaseId as PhaseData;
+  const nextLessonForClient = nextLesson
+    ? {
+        _id: nextLesson._id.toString(),
+        title: nextLesson.title as string,
+      }
+    : null;
 
   return (
     <MainLayout>
@@ -348,7 +354,7 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
         <LessonActions 
           lessonId={lessonId}
           isCompleted={isCompleted}
-          nextLesson={nextLesson}
+          nextLesson={nextLessonForClient}
           lessonDuration={lesson.content?.duration || lesson.duration || 0}
         />
 
