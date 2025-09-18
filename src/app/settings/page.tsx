@@ -17,14 +17,17 @@ import {
   Trash2,
   Save,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Smartphone
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useUser, useClerk } from '@clerk/nextjs';
+import { usePwaInstall } from '@/hooks/use-pwa-install';
 
 export default function SettingsPage() {
   const { user } = useUser();
   const { signOut } = useClerk();
+  const { canInstall, isStandalone, promptInstall } = usePwaInstall();
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: false,
@@ -139,6 +142,49 @@ export default function SettingsPage() {
         )}
 
         <div className="space-y-6">
+          {/* Install App */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Smartphone className="h-5 w-5" />
+                <span>Install App</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!isStandalone ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Add to Home Screen</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Install Quild Academy for a faster, app-like experience.
+                    </p>
+                  </div>
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    disabled={!canInstall}
+                    onClick={promptInstall}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    {canInstall ? 'Install' : 'Not Available'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Installed</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      You are already using the installed app.
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="text-green-600 border-green-600">
+                    Installed
+                  </Badge>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Account Settings */}
           <Card>
             <CardHeader>
